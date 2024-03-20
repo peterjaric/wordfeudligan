@@ -59,14 +59,18 @@ with open("wordfeudligan.txt", "w") as f:
                 matches.append(match)
 
     # Sort the matches, keeping the current order, but sorting like this:
-    # Season 1, season 2, season 3, season 4, season 5, season 6, cup 1, season 7
+    # Season 1, season 2, season 3, season 4, season 5, season 6, cup 1, season 7, season 8, ...
     def sort_custom(match):
-        if match["sheet"].startswith("Säsong ") and not match["sheet"].startswith("Säsong 7"):
-            return int(match["sheet"][7:])
-        elif match["sheet"].startswith("Cup "):
-            return int(match["sheet"][4:]) + 100
-        elif match["sheet"].startswith("Säsong 7"):
-            return 1000
+        sheet_name = match["sheet"]
+        if sheet_name.startswith("Säsong "):
+            season = int(sheet_name[7:])
+            if season < 7:
+                return season
+            else:
+                # Season 7, 8, etc
+                return season + 1000
+        elif sheet_name == "Cup 1":
+            return 100
 
     matches.sort(key=sort_custom)
 
