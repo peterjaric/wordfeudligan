@@ -37,6 +37,7 @@ with open("wordfeudligan.txt", "w") as f:
     # Loop through all sheets
     print("Looping through sheets")
     for sheet in workbook.worksheets:
+        current_matches = []
         # For each row with a value in column F and column G, record the values of column B, C, F and G
         for row in sheet.iter_rows(min_row=2, min_col=2, max_col=7):
             if sheet.title.startswith("Säsong") and row[4].value and row[5].value:
@@ -47,7 +48,7 @@ with open("wordfeudligan.txt", "w") as f:
                     "score1": int(row[4].value),
                     "score2": int(row[5].value)
                 }
-                matches.append(match)
+                current_matches.append(match)
             elif sheet.title.startswith("Cup") and row[2].value and row[3].value:
                 match = {
                     "sheet": sheet.title,
@@ -56,23 +57,9 @@ with open("wordfeudligan.txt", "w") as f:
                     "score1": int(row[2].value),
                     "score2": int(row[3].value)
                 }
-                matches.append(match)
-
-    # Sort the matches, keeping the current order, but sorting like this:
-    # Season 1, season 2, season 3, season 4, season 5, season 6, cup 1, season 7, season 8, ...
-    def sort_custom(match):
-        sheet_name = match["sheet"]
-        if sheet_name.startswith("Säsong "):
-            season = int(sheet_name[7:])
-            if season < 7:
-                return season
-            else:
-                # Season 7, 8, etc
-                return season + 1000
-        elif sheet_name == "Cup 1":
-            return 100
-
-    matches.sort(key=sort_custom)
+                current_matches.append(match)
+        # Add matches at the start of the list since sheets are listed in reverse order
+        matches = current_matches + matches
 
     # Write the matches to the file
     # convert start date to seconds since epoch
