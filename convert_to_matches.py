@@ -4,24 +4,23 @@
 import openpyxl
 import time
 
-def fix_name(name):
-    # remove spaces
+
+# Due to a limitation in Rayter lots of characters are not allowed in the name
+def replace_invalid_characters(name):
     name = name.replace(" ", "")
 
-    # remove everything after the second capital letter
-    for i in range(2, len(name)):
-        if name[i].isupper():
-            name = name[:(i + 1)]
-            break
+    name = name.replace("å", "aa")
+    name = name.replace("ä", "ae")
+    name = name.replace("ö", "oe")
+    name = name.replace("Å", "Aa")
+    name = name.replace("Ä", "Ae")
+    name = name.replace("Ö", "Oe")
 
-    if name == "PelleÅ":
-        name = "Pelle"
+    return name
 
-    if name == "Jöran":
-        name = "Joran"
-
-    if name == "JohanL":
-        name = "Johan"
+def fix_name(name):
+    name = name.strip()
+    name = replace_invalid_characters(name)
 
     return name
 
@@ -34,32 +33,104 @@ with open("wordfeudligan.txt", "w") as f:
 
     matches = []
 
+    wordfeudname_to_realname = {
+        "äggeth": "PelleAa",
+        "Äggeth": "PelleAa",
+        "Åkermarken": "Lars",
+        "Andreas112": "Andreas",
+        "Annafian": "Fia",
+        "CamillaB71": "Camilla",
+        "dinkelidunk": "Tommy",
+        "drsadness": "Jonas",
+        "Emma-Victoria": "Emma",
+        "gurka1495": "Per",
+        "johlits": "JohanL",
+        "joppelicious": "Johannes",
+        "KaffeKaffe": "Fredrik",
+        "Kamomillan": "Camilla",
+        "kim.stenberg": "Kim",
+        "liljekvist02": "MikaelL", # This Mikael has been modified to MikaelL to not collide with Migus-Mikael
+        "Migus": "Mikael",
+        "ministerkrister": "Kristofer",
+        "peterjaric": "Peter",
+        "proso": "PelleA",
+        "Scrbell": "Joeran",
+        "snilser93": "Svante",
+        "ulrika.b.carlsson": "Ulrika",
+        "uumartin": "Martin",
+    }
+
     # Loop through all sheets
     print("Looping through sheets")
     for sheet in workbook.worksheets:
-        current_matches = []
-        # For each row with a value in column F and column G, record the values of column B, C, F and G
-        for row in sheet.iter_rows(min_row=2, min_col=2, max_col=7):
-            if sheet.title.startswith("Säsong") and row[4].value and row[5].value:
-                match = {
-                    "sheet": sheet.title,
-                    "player1": fix_name(row[0].value),
-                    "player2": fix_name(row[1].value),
-                    "score1": int(row[4].value),
-                    "score2": int(row[5].value)
+        realname_to_wordfeudname = {}
+
+        # Only parse sheets that are seasons or cups
+        if (sheet.title.startswith("Säsong") or sheet.title.startswith("Cup")):
+            # Parse player names and Wordfeud aliases
+            if sheet.title == "Säsong 1":
+                # The first season doesn't list the players' Wordfeud names
+                realname_to_wordfeudname = {
+                    "Jonas": "drsadness",
+                    "Pelle": "Äggeth",
+                    "Per": "gurka1495",
+                    "Kristofer": "ministerkrister"
                 }
-                current_matches.append(match)
-            elif sheet.title.startswith("Cup") and row[2].value and row[3].value:
-                match = {
-                    "sheet": sheet.title,
-                    "player1": fix_name(row[0].value),
-                    "player2": fix_name(row[1].value),
-                    "score1": int(row[2].value),
-                    "score2": int(row[3].value)
-                }
-                current_matches.append(match)
-        # Add matches at the start of the list since sheets are listed in reverse order
-        matches = current_matches + matches
+            else:
+                # Find the cell with the name "Wordfeudnamn"
+                wordfeud_name_column = None
+                wordfeud_name_row = None
+                for row in sheet.iter_rows(min_row=1, max_row=100, min_col=1, max_col=20):
+                    for cell in row:
+                        if cell.value == "Wordfeudnamn":
+                            wordfeud_name_column = cell.column
+                            wordfeud_name_row = cell.row
+                            break
+                    if wordfeud_name_column:
+                        break
+
+                # Connect the player names with their Wordfeud aliases by iterating through the rows under the cell with the name "Wordfeudnamn"
+                for row in sheet.iter_rows(min_row=wordfeud_name_row + 1, min_col=wordfeud_name_column - 1, max_col=wordfeud_name_column):
+                    if row[0].value:
+                        realname_to_wordfeudname[row[0].value.strip()] = row[1].value.strip()
+                    else:
+                        # Loop until we find an empty cell
+                        break
+
+                # Add the reverse mapping
+                # for realname, wordfeudname in realname_to_wordfeudname.items():
+                #     if wordfeudname not in wordfeudname_to_realname:
+                #         wordfeudname_to_realname[wordfeudname] = fix_name(realname)
+
+
+            # Parse results
+            current_matches = []
+            # For each row with a value in column F and column G, record the values of column B, C, F and G
+            for row in sheet.iter_rows(min_row=2, min_col=2, max_col=7):
+                if sheet.title.startswith("Säsong") and row[4].value and row[5].value:
+                    match = {
+                        "sheet": sheet.title,
+                        # "player1": fix_name(row[0].value),
+                        # "player2": fix_name(row[1].value),
+                        "player1": wordfeudname_to_realname[realname_to_wordfeudname[row[0].value.strip()]],
+                        "player2": wordfeudname_to_realname[realname_to_wordfeudname[row[1].value.strip()]],
+                        "score1": int(row[4].value),
+                        "score2": int(row[5].value)
+                    }
+                    current_matches.append(match)
+                elif sheet.title.startswith("Cup") and row[2].value and row[3].value:
+                    match = {
+                        "sheet": sheet.title,
+                        # "player1": fix_name(row[0].value),
+                        # "player2": fix_name(row[1].value),
+                        "player1": wordfeudname_to_realname[realname_to_wordfeudname[row[0].value.strip()]],
+                        "player2": wordfeudname_to_realname[realname_to_wordfeudname[row[1].value.strip()]],
+                        "score1": int(row[2].value),
+                        "score2": int(row[3].value)
+                    }
+                    current_matches.append(match)
+            # Add matches at the start of the list since sheets are listed in reverse order
+            matches = current_matches + matches
 
     # Write the matches to the file
     # convert start date to seconds since epoch
