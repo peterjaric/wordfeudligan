@@ -1,2 +1,3 @@
 openpyxl
-rayter
+rayter>=2.1.0
+

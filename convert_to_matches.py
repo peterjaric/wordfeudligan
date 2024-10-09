@@ -5,22 +5,8 @@ import openpyxl
 import time
 
 
-# Due to a limitation in Rayter lots of characters are not allowed in the name
-def replace_invalid_characters(name):
-    name = name.replace(" ", "")
-
-    name = name.replace("å", "aa")
-    name = name.replace("ä", "ae")
-    name = name.replace("ö", "oe")
-    name = name.replace("Å", "Aa")
-    name = name.replace("Ä", "Ae")
-    name = name.replace("Ö", "Oe")
-
-    return name
-
 def fix_name(name):
     name = name.strip()
-    name = replace_invalid_characters(name)
 
     return name
 
@@ -34,8 +20,8 @@ with open("wordfeudligan.txt", "w") as f:
     matches = []
 
     wordfeudname_to_realname = {
-        "äggeth": "PelleAa",
-        "Äggeth": "PelleAa",
+        "äggeth": "PelleÅ",
+        "Äggeth": "PelleÅ",
         "Åkermarken": "Lars",
         "Andreas112": "Andreas",
         "Annafian": "Fia",
@@ -54,7 +40,7 @@ with open("wordfeudligan.txt", "w") as f:
         "ministerkrister": "Kristofer",
         "peterjaric": "Peter",
         "proso": "PelleA",
-        "Scrbell": "Joeran",
+        "Scrbell": "Jöran",
         "snilser93": "Svante",
         "ulrika.b.carlsson": "Ulrika",
         "uumartin": "Martin",
@@ -96,12 +82,6 @@ with open("wordfeudligan.txt", "w") as f:
                     else:
                         # Loop until we find an empty cell
                         break
-
-                # Add the reverse mapping
-                # for realname, wordfeudname in realname_to_wordfeudname.items():
-                #     if wordfeudname not in wordfeudname_to_realname:
-                #         wordfeudname_to_realname[wordfeudname] = fix_name(realname)
-
 
             # Parse results
             current_matches = []
