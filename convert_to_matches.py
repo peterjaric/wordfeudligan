@@ -58,7 +58,7 @@ with open(rayter_file, "w") as f:
         "KaffeKaffe": "Fredrik",
         "Kamomillan": "Camilla",
         "kim.stenberg": "Kim",
-        "landfelt": "Niklas",
+        "landfeldt": "Niklas",
         "liljekvist02": "MikaelL", # This Mikael has been modified to MikaelL to not collide with Migus-Mikael
         "Migus": "Mikael",
         "ministerkrister": "Kristofer",
