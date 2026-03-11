@@ -65,7 +65,6 @@ with open(rayter_file, "w") as f:
         "ministerkrister": "Kristofer",
         "peterjaric": "Peter",
         "proso": "PelleA",
-        "proso": "Pelle A",
         "Scrbell": "Jöran",
         "snilser93": "Svante",
         "ulrika.b.carlsson": "Ulrika",
