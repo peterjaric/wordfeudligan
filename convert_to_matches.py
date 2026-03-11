@@ -69,6 +69,7 @@ with open(rayter_file, "w") as f:
         "ulrika.b.carlsson": "Ulrika",
         "uumartin": "Martin",
         "Åkermarken": "Lars",
+        "Kristján": "Kristján",
     }
 
     # Loop through all sheets
