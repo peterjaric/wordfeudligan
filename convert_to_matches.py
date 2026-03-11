@@ -61,9 +61,11 @@ with open(rayter_file, "w") as f:
         "landfeldt": "Niklas",
         "liljekvist02": "MikaelL", # This Mikael has been modified to MikaelL to not collide with Migus-Mikael
         "Migus": "Mikael",
+        "Mrwindle", "Lukas",
         "ministerkrister": "Kristofer",
         "peterjaric": "Peter",
         "proso": "PelleA",
+        "proso": "Pelle A",
         "Scrbell": "Jöran",
         "snilser93": "Svante",
         "ulrika.b.carlsson": "Ulrika",
